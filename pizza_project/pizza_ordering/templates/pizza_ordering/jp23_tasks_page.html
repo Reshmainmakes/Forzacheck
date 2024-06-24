@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JP23 Tasks</title>
+    <!-- Add any necessary styles or scripts -->
+</head>
+<body>
+    <h1>JP23 Tasks Completion</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Include specific tasks for JP23 -->
+        <div class="task-item">
+            <label for="hallway_mopped">Hallway has been mopped Yes/No</label>
+            <input type="checkbox" id="hallway_mopped" name="hallway_mopped">
+        </div>
+        <div class="task-item">
+            <label for="cellar_rooms_tidy">Cellar rooms are garbage-free & tidy (only yes, otherwise clean)</label>
+            <input type="checkbox" id="cellar_rooms_tidy" name="cellar_rooms_tidy">
+        </div>
+        <div class="task-item">
+            <label for="waiters_pad_replenished">Waiter's pad, receipt rolls, napkins have been replenished Yes/No</label>
+            <input type="checkbox" id="waiters_pad_replenished" name="waiters_pad_replenished">
+        </div>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

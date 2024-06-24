@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Department and Shift Selection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #87ceeb;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .logo {
+            max-width: 450px; /* Adjust the maximum width as per your preference */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 10px; /* Optional: Adjust margin as needed */
+        }
+        .language-switcher {
+            text-align: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .language-switcher a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+        }
+        .language-switcher a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        function updateShiftOptions() {
+            var department = document.getElementById("department").value;
+            var shiftSelect = document.getElementById("shift");
+
+            // Clear existing options
+            shiftSelect.innerHTML = '';
+
+            // Add default select option
+            var selectOption = new Option('select', 'select');
+            selectOption.setAttribute('data-lang-en', 'select');
+            selectOption.setAttribute('data-lang-de', 'auswählen');
+            shiftSelect.options.add(selectOption);
+
+            if (department === 'terminal') {
+                var lunchOption = new Option('Lunch', 'lunch');
+                lunchOption.setAttribute('data-lang-en', 'Lunch Shift');
+                lunchOption.setAttribute('data-lang-de', 'Mittagsschicht');
+                shiftSelect.options.add(lunchOption);
+
+                var lateOption = new Option('Late', 'late');
+                lateOption.setAttribute('data-lang-en', 'Late Shift');
+                lateOption.setAttribute('data-lang-de', 'Spätschicht');
+                shiftSelect.options.add(lateOption);
+            } else if (department === 'kitchen') {
+                var lunchOption = new Option('Lunch', 'lunch');
+                lunchOption.setAttribute('data-lang-en', 'Lunch Shift');
+                lunchOption.setAttribute('data-lang-de', 'Mittagsschicht');
+                shiftSelect.options.add(lunchOption);
+
+                var lateOption = new Option('Late', 'late');
+                lateOption.setAttribute('data-lang-en', 'Late Shift');
+                lateOption.setAttribute('data-lang-de', 'Spätschicht');
+                shiftSelect.options.add(lateOption);
+
+                var specialCleaningMondayOption = new Option('Special Cleaning (Monday)', 'specialcleaningmonday');
+                specialCleaningMondayOption.setAttribute('data-lang-en', 'Special Cleaning (Monday)');
+                specialCleaningMondayOption.setAttribute('data-lang-de', 'Sonderreinigung (Montag)');
+                shiftSelect.options.add(specialCleaningMondayOption);
+
+                var specialCleaningWednesdayOption = new Option('Special Cleaning (Wednesday)', 'specialcleaningwednesday');
+                specialCleaningWednesdayOption.setAttribute('data-lang-en', 'Special Cleaning (Wednesday)');
+                specialCleaningWednesdayOption.setAttribute('data-lang-de', 'Sonderreinigung (Mittwoch)');
+                shiftSelect.options.add(specialCleaningWednesdayOption);
+            }
+
+            updateSectionField(); // Update the section and additional fields based on the new shift options
+            switchLanguage(currentLanguage); // Apply current language to the new options
+        }
+
+        function updateSectionField() {
+            var shift = document.getElementById("shift").value;
+            var department = document.getElementById("department").value;
+            var sectionField = document.getElementById("section-field");
+            var additionalField = document.getElementById("additional-field");
+
+            sectionField.style.display = (shift === "specialcleaningwednesday") ? "block" : "none";
+            additionalField.style.display = ((department === "kitchen" && (shift === "lunch" || shift === "late"))) ? "block" : "none";
+        }
+
+        var currentLanguage = 'de';  // Default language
+
+        function switchLanguage(language) {
+            currentLanguage = language; // Update current language
+            var elements = document.querySelectorAll('[data-lang-en]');
+            elements.forEach(function(element) {
+                element.innerText = element.getAttribute('data-lang-' + language);
+            });
+            // Update dynamically added options
+            var shiftOptions = document.querySelectorAll('#shift option');
+            shiftOptions.forEach(function(option) {
+                if (option.getAttribute('data-lang-en')) {
+                    option.textContent = option.getAttribute('data-lang-' + language);
+                }
+            });
+            // Update submit button value
+            var submitButton = document.querySelector('input[type="submit"]');
+            if (submitButton.getAttribute('data-lang-en')) {
+                submitButton.value = submitButton.getAttribute('data-lang-' + language);
+            }
+        }
+
+        // Initialize shift options and section field display based on the current selection
+        document.addEventListener("DOMContentLoaded", function() {
+            updateShiftOptions();
+        });
+    </script>
+</head>
+
+<body>
+
+    <img src="{% static 'images/FORZACHECK1_whie.png' %}" alt="Forzacheck Logo" class="logo">
+
+    <form action="{% url 'department_shift_selection' %}" method="post">
+        {% csrf_token %}
+
+        <h1 data-lang-en="Please Select" data-lang-de="Bitte auswählen">Please Select</h1>
+        <label for="department" data-lang-en="Select Department" data-lang-de="Abteilung auswählen">Select Department</label>
+        <select name="department" id="department" onchange="updateShiftOptions()">
+            <option value="select" data-lang-en="select" data-lang-de="auswählen">select</option>
+            <option value="kitchen" data-lang-en="Kitchen" data-lang-de="Küche">Kitchen</option>
+            <option value="terminal" data-lang-en="Terminal" data-lang-de="Terminal">Terminal</option>
+        </select>
+
+        <label for="shift" data-lang-en="Select Shift" data-lang-de="Schicht auswählen">Select Shift</label>
+        <select name="shift" id="shift" onchange="updateSectionField()">
+            <option value="select" data-lang-en="select" data-lang-de="auswählen">select</option>
+            <!-- Options will be dynamically populated based on the selected department -->
+        </select>
+
+        <div id="section-field" class="hidden">
+            <label for="section" data-lang-en="Select Section" data-lang-de="Abschnitt auswählen">Select Section</label>
+            <select name="section" id="section">
+                <option value="select" data-lang-en="select" data-lang-de="auswählen">select</option>
+                <option value="kitchen" data-lang-en="Kitchen" data-lang-de="Küche">Kitchen</option>
+                <option value="dry_storage" data-lang-en="Dry Storage" data-lang-de="Trockenlager">Dry Storage</option>
+                <option value="apartment" data-lang-en="Apartment" data-lang-de="Wohnung">Apartment</option>
+            </select>
+        </div>
+
+        <div id="additional-field" class="hidden">
+            <label for="action" data-lang-en="Select Action" data-lang-de="Aktion auswählen">Select Action</label>
+            <select name="action" id="action">
+                <option value="select" data-lang-en="select" data-lang-de="auswählen">select</option>
+                <option value="quantity" data-lang-en="Quantity" data-lang-de="Menge">Quantity</option>
+                <option value="task" data-lang-en="Task" data-lang-de="Aufgabe">Task</option>
+            </select>
+        </div>
+
+        <input type="submit" value="Submit" data-lang-en="Submit" data-lang-de="Einreichen">
+    </form>
+    <div class="language-switcher">
+        <a href="#" onclick="switchLanguage('en')">English</a> | <a href="#" onclick="switchLanguage('de')">Deutsch</a>
+    </div>
+
+</body>
+</html>
